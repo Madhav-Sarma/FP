@@ -264,11 +264,21 @@ export const deleteMeeting = async (id) => {
   }
 };
 
-export const addActivity = async (activity) => {
+export const addActivity = async (activityData) => {
   try {
-    console.log('hi', activity);
-    const response = await api.post('/nonacademics', activity); // Use activity instead of data
-    console.log(response.data);
+    const formData = new FormData();
+    formData.append('menteeId', activityData.menteeId);
+    formData.append('name', activityData.name);
+    formData.append('type', activityData.type);
+    formData.append('description', activityData.description);
+    if (activityData.pdf) {
+      formData.append('pdf', activityData.pdf);
+    }
+
+    const response = await api.post(`/nonacademics`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
     return response.data;
   } catch (error) {
     console.error('Error adding activity:', error);

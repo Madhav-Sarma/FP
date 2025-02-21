@@ -1,17 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  CssBaseline,
-  AppBar,
-  Toolbar,
-  Typography,
-  IconButton,
-  Slide,
-} from '@mui/material';
 import { useAuth } from '../AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { ExitToApp } from '@mui/icons-material';
-
+import { BoxArrowRight } from 'react-bootstrap-icons';
+import './MiniLayout.css'; // Create this file for custom styles
 
 const useHideOnScroll = () => {
   const [show, setShow] = useState(true);
@@ -51,88 +42,60 @@ const MiniLayout = ({ children }) => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <CssBaseline />
-
-      <Slide appear={false} direction="down" in={show}>
-        <AppBar position="fixed" sx={{ backgroundColor: '#212529', zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-          <Toolbar>
-            <Typography
-              component="div"
-              sx={{ 
-                fontFamily: 'Poppins, sans-serif', 
-                fontSize: '1.8rem', 
-                flex: 1, 
-                textAlign: 'center', 
-                color: 'white',
-                cursor: 'pointer' }}
+    <div className="d-flex flex-column min-vh-100">
+      <div className={`fixed-top ${show ? 'show' : 'hide'}`} id="navbar">
+        <nav className="navbar navbar-dark bg-dark">
+          <div className="container-fluid d-flex justify-content-between align-items-center">
+            <span
+              className="navbar-brand mb-0 h1 text-center mx-auto"
               onClick={() => navigate('/')}
+              style={{
+                fontFamily: 'Poppins, sans-serif',
+                fontSize: '1.8rem',
+                cursor: 'pointer',
+              }}
             >
               MentorConnect
-            </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Typography
-                variant="h6"
-                component="div"
-                sx={{ 
-                  fontFamily: 'Poppins, sans-serif', 
-                  fontSize: '1.2rem', 
-                  color: 'white', 
-                  textAlign: 'right' 
+            </span>
+            <div className="d-flex align-items-center ml-auto">
+              <span
+                className="navbar-text"
+                style={{
+                  fontFamily: 'Poppins, sans-serif',
+                  fontSize: '1.2rem',
+                  color: 'white',
+                  textAlign: 'right',
                 }}
               >
                 Welcome, {name}
-                <Typography
-                  variant="body2"
-                  component="span"
-                  sx={{ marginLeft: 1, fontSize: '0.8rem', color: 'white' }}
+                <span
+                  style={{
+                    marginLeft: '0.5rem',
+                    fontSize: '0.8rem',
+                    color: 'white',
+                  }}
                 >
                   ({userRole})
-                </Typography>
-              </Typography>
-              <IconButton color="inherit" onClick={handleLogout} sx={{ ml: 2 }}>
-                <ExitToApp />
-              </IconButton>
-            </Box>
-          </Toolbar>
-        </AppBar>
-      </Slide>
+                </span>
+              </span>
+              <button className="btn btn-outline-light ml-2" onClick={handleLogout}>
+                <BoxArrowRight size={24} />
+              </button>
+            </div>
+          </div>
+        </nav>
+      </div>
 
-      {/* Main Content */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          overflow: 'auto',
-          mt: 8, // Adds top margin to account for AppBar
-          width: '100%',
-        }}
-      >
+      <main className="flex-grow-1 mt-5 pt-4 container-fluid">
         {children}
-      </Box>
+      </main>
 
-      {/* Footer */}
-      <Box
-        sx={{
-          backgroundColor: '#212529',
-          py: 2,
-          color: 'white',
-          mt: 'auto',
-          width: '100%',
-          textAlign: 'center',
-        }}
-      >
-        <Typography
-          variant="body2"
-          color="textSecondary"
-          align="center"
-          sx={{ color: 'white' }}
-        >
+      <footer className="bg-dark py-3 text-white mt-auto text-center">
+        <small>
           &copy; {new Date().getFullYear()} MentorConnect. All rights reserved.
-        </Typography>
-      </Box>
-    </Box>
+        </small>
+      </footer>
+    </div>
   );
 };
 

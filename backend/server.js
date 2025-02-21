@@ -21,6 +21,10 @@ app.use(express.json());
 app.use('/user-api/auth', userRoutes);
 
 
+// Serve static files from the uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
 app.use('/mentees', menteeRoutes);
 app.use('/mentors', mentorRoutes);
 app.use('/attendance', attendanceRoutes);

@@ -13,17 +13,23 @@ import {
   Card,
   CardContent,
   CardActions,
-  // FormControl,
-  // InputLabel,
-  // Select,
-  // MenuItem
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
-import './AddActivityForm.css'; // Import the custom CSS file
+import { styled } from '@mui/system';
+import './AddActivityForm.css';
+
+const Input = styled('input')({
+  display: 'none',
+});
 
 const AddActivityForm = ({ onActivityAdded }) => {
   const { id: menteeId } = useParams(); // Use useParams to get the menteeId from the URL
-  const [activityData, setActivityData] = useState({ menteeId, name: '', type: '', description: '' });
+  const [activityData, setActivityData] = useState({ menteeId, name: '', type: '', description: '', pdf: null });
   const [activities, setActivities] = useState([]);
+  const [selectedActivity, setSelectedActivity] = useState(null);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -45,6 +51,11 @@ const AddActivityForm = ({ onActivityAdded }) => {
     const { name, value } = event.target;
     setActivityData({ ...activityData, [name]: value });
     setErrors({ ...errors, [name]: '' });
+  };
+
+  const handleFileChange = (event) => {
+    console.log(event.target.files[0])
+    setActivityData({ ...activityData, pdf: event.target.files[0] });
   };
 
   const validate = () => {
@@ -69,14 +80,23 @@ const AddActivityForm = ({ onActivityAdded }) => {
         name: activityData.name,
         type: activityData.type,
         description: activityData.description,
+        pdf: activityData.pdf,
       };
       const savedActivity = await addActivity(newActivity);
       setActivities([...activities, savedActivity]);
       onActivityAdded(savedActivity);
-      setActivityData({ menteeId, name: '', type: '', description: '' });
+      setActivityData({ menteeId, name: '', type: '', description: '', pdf: null });
     } catch (error) {
       console.error('Error adding activity:', error);
     }
+  };
+
+  const handleActivityClick = (activity) => {
+    setSelectedActivity(activity);
+  };
+
+  const handleCloseDialog = () => {
+    setSelectedActivity(null);
   };
 
   return (
@@ -98,8 +118,8 @@ const AddActivityForm = ({ onActivityAdded }) => {
               error={!!errors.name}
               helperText={errors.name}
             />
-            {/* Commented out dropdown for future use
-            <FormControl fullWidth margin="normal" variant="outlined" error={!!errors.type}>
+            {/* Commented out dropdown for future use */}
+            {/* <FormControl fullWidth margin="normal" variant="outlined" error={!!errors.type}>
               <InputLabel>Activity Type</InputLabel>
               <Select
                 label="Activity Type"
@@ -115,10 +135,9 @@ const AddActivityForm = ({ onActivityAdded }) => {
                 <MenuItem value="Music">Music</MenuItem>
                 <MenuItem value="Art">Art</MenuItem>
                 {/* Add more options as needed */}
-            {/*  </Select>
+              {/* </Select>
               {errors.type && <Typography color="error">{errors.type}</Typography>}
-            </FormControl>
-            */}
+            </FormControl> */}
             <TextField
               fullWidth
               label="Activity Type"
@@ -143,11 +162,20 @@ const AddActivityForm = ({ onActivityAdded }) => {
               error={!!errors.description}
               helperText={errors.description}
             />
-            <CardActions>
-              <Button type="submit" variant="contained" color="primary" fullWidth>
-                Add Activity
+            <label htmlFor="pdf-upload">
+              <Input
+                accept="application/pdf"
+                id="pdf-upload"
+                type="file"
+                onChange={handleFileChange}
+              />
+              <Button variant="contained" component="span" sx={{ mt: 2 }}>
+                Upload PDF
               </Button>
-            </CardActions>
+            </label>
+            <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 3 }}>
+              Add Activity
+            </Button>
           </Box>
         </CardContent>
       </Card>
@@ -156,7 +184,7 @@ const AddActivityForm = ({ onActivityAdded }) => {
       </Typography>
       <List>
         {activities.map((activity, index) => (
-          <ListItem key={index} divider>
+          <ListItem key={index} divider button onClick={() => handleActivityClick(activity)}>
             <ListItemText
               primary={<strong>{activity.name}</strong>}
               secondary={
@@ -169,6 +197,28 @@ const AddActivityForm = ({ onActivityAdded }) => {
           </ListItem>
         ))}
       </List>
+      {selectedActivity && (
+        <Dialog open={!!selectedActivity} onClose={handleCloseDialog}>
+          <DialogTitle>Activity Details</DialogTitle>
+          <DialogContent>
+            <Typography variant="h6">{selectedActivity.name}</Typography>
+            <Typography variant="subtitle1">Type: {selectedActivity.type}</Typography>
+            <Typography variant="body1">{selectedActivity.description}</Typography>
+            {selectedActivity.pdfPath && (
+              <Typography variant="body1">
+                <a href={`http://localhost:5000/${selectedActivity.pdfPath}`} target="_blank" rel="noopener noreferrer">
+                  View PDF
+                </a>
+              </Typography>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog} variant="contained" color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </Container>
   );
 };
